@@ -25,6 +25,7 @@ public class RentalService {
     @Autowired
     private BookRepository bookRepository;
 
+
     public Rental createRental(RentalRequest rentalRequest) {
 
         User user = userRepository.findById(rentalRequest.getUserId())
@@ -99,10 +100,23 @@ public class RentalService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to return rental: " + e.getMessage());
         }
-        
-
-        
-        
+           
     }
 
+    public Rental extendRental(Long rentalId) {
+        Rental rental = rentalRepository.findById(rentalId)
+                .orElseThrow(() -> new RuntimeException("Rental not found"));
+
+        if (rental.isReturned()) {
+            throw new RuntimeException("Rental already returned");
+        }
+
+        rental.setReturnDate(java.time.LocalDate.parse(rental.getReturnDate()).plusWeeks(1).toString());
+
+        try {
+            return rentalRepository.save(rental);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to extend rental: " + e.getMessage());
+        }
+    }
 }

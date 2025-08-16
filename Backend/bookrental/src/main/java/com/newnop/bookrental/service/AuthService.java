@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.newnop.bookrental.config.JwtUtils;
 import com.newnop.bookrental.model.User;
 import com.newnop.bookrental.repository.UserRepository;
 
@@ -19,6 +20,9 @@ public class AuthService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtils jwtUtils; 
 
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
@@ -49,6 +53,10 @@ public class AuthService {
         }
         return exisngUserObj;
 
+    }
+
+    public String generateToken(User user) {
+        return jwtUtils.generateToken(user.getEmail());
     }
 
   

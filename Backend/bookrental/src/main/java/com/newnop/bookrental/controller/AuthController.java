@@ -24,8 +24,7 @@ public class AuthController {
         try {
             User registerdUser = authService.userRegister(user);
 
-           
-            String token = "token";
+            String token = authService.generateToken(registerdUser);
 
             AuthResponse authResponse = new AuthResponse(registerdUser.getId(),registerdUser.getEmail(), registerdUser.getName(), token, registerdUser.getRole());
             return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
@@ -41,7 +40,7 @@ public class AuthController {
         try {
             User loggedInUser = authService.loginUser(user);
 
-            String token = "token";
+            String token = authService.generateToken(loggedInUser);
 
             AuthResponse authResponse = new AuthResponse(loggedInUser.getId(), loggedInUser.getEmail(), loggedInUser.getName(), token, loggedInUser.getRole());
             return new ResponseEntity<>(authResponse, HttpStatus.OK);

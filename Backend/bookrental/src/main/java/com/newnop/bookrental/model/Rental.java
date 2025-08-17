@@ -9,6 +9,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
+
+//Rental entity model
 @Data
 @Entity
 @Table(name = "rentals")

@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 
 import com.newnop.bookrental.model.Book;
 import com.newnop.bookrental.repository.BookRepository;
+import com.newnop.bookrental.repository.RentalRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class BookService {
@@ -14,6 +17,10 @@ public class BookService {
     @Autowired
     BookRepository bookRepository;
 
+    @Autowired
+    RentalRepository rentalRepository;
+
+    // Method to create a new book
     public Book createBook(Book book) {
        
        if(bookRepository.findByIsbn(book.getIsbn()) != null) {
@@ -26,7 +33,7 @@ public class BookService {
             throw new RuntimeException("Error creating book: " + e.getMessage());
         }
     }
-
+    // Method to get a book by ID
     public List<Book> getAllBooks() {
         try {
             return bookRepository.findAll();
@@ -35,6 +42,7 @@ public class BookService {
         }
     }
 
+    // Method to get a book by ID
     public Book updateBook(Book book) {
         if(book.getId() == null) {
             throw new RuntimeException("Book ID missing");
@@ -50,18 +58,20 @@ public class BookService {
         }
     }
 
+    // Method to delete a book by ID
+    @Transactional
     public void deleteBook(Long id) {
-        if(id == null) {
+        if (id == null) {
             throw new RuntimeException("Book ID missing");
         }
-        if (bookRepository.findById(id).isEmpty()) {
-            throw new RuntimeException("Book not found");
-        }
-        try {
-            bookRepository.deleteById(id);
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting book: " + e.getMessage());
-        }
+    
+        var book = bookRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Book not found"));
+        
+        //delete book references in rentals
+        rentalRepository.deleteAllByBookId(id);
+        //delete book
+        bookRepository.delete(book);
     }
     
 }

@@ -49,7 +49,7 @@ const Login = () => {
     <div className="min-h-screen flex flex-col md:flex-row items-center justify-center text-gray-100 p-4 gap-x-30">
       <div className="flex flex-col mb-8 md:mb-0 px-4 text-center md:text-left">
         <div className="flex flex-col items-center space-y-4">
-          <div className="flex items-center justify-center w-30 h-30 bg-blue-700 rounded-full mb-4">
+          <div className="flex items-center justify-center w-30 h-30 bg-gradient-to-r from-gradient1 to-gradient2 rounded-full mb-4">
             <Book className="w-20 h-20 text-white" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-white">
@@ -62,9 +62,9 @@ const Login = () => {
         </div>
       </div>
 
-      <div className="w-full md:w-1/2 max-w-md bg-gray-800 p-8 rounded-lg shadow-lg">
+      <div className="w-full md:w-1/2 max-w-md bg-gradient-to-r from-gradienthero1 to-gradienthero2 p-8 rounded-lg shadow-lg">
         <div className="flex flex-col items-center mb-6">
-          <div className="bg-blue-700 p-4 rounded-full mb-4">
+          <div className="bg-gradient-to-r from-gradient1 to-gradient2 p-4 rounded-full mb-4">
             <LogIn className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-2xl font-bold text-white">Sign In</h2>
@@ -81,7 +81,7 @@ const Login = () => {
                 value={formData.email}
                 onChange={(e) => handleChange("email", e.target.value)}
                 disabled={isLoading}
-                className="w-full pl-10 pr-3 py-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-3 py-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-gradient1"
               />
             </div>
             {errors.email && (
@@ -99,7 +99,7 @@ const Login = () => {
                 value={formData.password}
                 onChange={(e) => handleChange("password", e.target.value)}
                 disabled={isLoading}
-                className="w-full pl-10 pr-10 py-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-10 py-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-gradient1"
               />
               <button
                 type="button"
@@ -122,15 +122,15 @@ const Login = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded text-white font-semibold transition-colors duration-200"
+            className="w-full py-2 bg-gradient-to-r from-gradient1 to-gradient2 rounded text-white font-semibold transition-colors duration-200"
           >
             {isLoading ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
-        <p className="mt-4 text-sm text-gray-400 text-center">
+        <p className="mt-4 text-md text-gray-400 text-center">
           Don't have an account?{" "}
-          <Link to="/signup" className="text-blue-400 hover:underline">
+          <Link to="/signup" className="text-gradient1 hover:underline">
             Sign up
           </Link>
         </p>

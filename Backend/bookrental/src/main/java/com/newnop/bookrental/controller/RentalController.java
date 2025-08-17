@@ -5,8 +5,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import com.newnop.bookrental.config.CustomUserDetails;
 import com.newnop.bookrental.dto.RentalRequest;
 import com.newnop.bookrental.dto.RentalResponse;
 import com.newnop.bookrental.model.Rental;
@@ -20,8 +22,9 @@ public class RentalController {
     private RentalService rentalService;
 
     @PostMapping("/rent")
-    public ResponseEntity<RentalResponse> createRental(@RequestBody RentalRequest rentalRequest) {
-        Rental rental = rentalService.createRental(rentalRequest);
+    public ResponseEntity<RentalResponse> createRental(@RequestBody RentalRequest rentalRequest, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        Long userId = customUserDetails.getId();
+        Rental rental = rentalService.createRental(userId, rentalRequest.getBookId());
         return new ResponseEntity<>(toResponse(rental), HttpStatus.CREATED);
     }
 
@@ -46,8 +49,9 @@ public class RentalController {
         return new ResponseEntity<>(toResponse(rental), HttpStatus.OK);
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<RentalResponse>> getRentalsByUser(@PathVariable Long userId) {
+    @GetMapping("/user")
+    public ResponseEntity<List<RentalResponse>> getRentalsByUser(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        Long userId = customUserDetails.getId();
         List<RentalResponse> rentalResponses = rentalService.getRentalsByUser(userId)
                 .stream()
                 .map(this::toResponse)

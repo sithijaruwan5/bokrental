@@ -14,5 +14,6 @@ public interface RentalRepository extends JpaRepository<Rental,Long>{
     List<Rental> findByBook(Book book);
     List<Rental> findByUserAndIsReturnedFalse(User user);
     List<Rental> findByIsReturnedFalse();
+    void deleteAllByBookId(Long bookId);
 
 }

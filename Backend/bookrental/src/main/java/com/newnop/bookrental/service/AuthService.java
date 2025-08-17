@@ -27,13 +27,15 @@ public class AuthService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
+    //User registration method
     public User userRegister(User user) {
 
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new CustomException("Email already exists");
         }
-
+        //encrypt the password before saving
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        //set default role
         user.setRole("USER");
 
         try {
@@ -45,6 +47,7 @@ public class AuthService {
         }
     }
 
+    //User login method
     public User loginUser(User user) {
         Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
         if (!existingUser.isPresent()) {

@@ -2,18 +2,18 @@ import { create } from "zustand";
 import axios from "axios";
 import { useUserStore } from "./useUserStore";
 import { API_BASE_URL } from "../utils/api";
-
+import toast from "react-hot-toast";
 
 export const useRentalStore = create((set, get) => ({
   rentals: [],
+  userRentals: [],
 
-  // Get auth header with Bearer token
   getAuthHeader: () => {
     const user = useUserStore.getState().user;
     return user ? { Authorization: `Bearer ${user.token}` } : {};
   },
 
-  // Fetch all rentals
+
   fetchRentals: async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/rentals/all`, {
@@ -22,26 +22,29 @@ export const useRentalStore = create((set, get) => ({
       set({ rentals: res.data });
     } catch (error) {
       console.error("Error fetching rentals:", error);
+      toast.error("Failed to fetch rentals");
     }
   },
 
-  // Create rental
-  createRental: async (rentalRequest) => {
+
+  createRental: async (bookId) => {
     try {
       const res = await axios.post(
         `${API_BASE_URL}/rentals/rent`,
-        rentalRequest,
+        { bookId },
         { headers: get().getAuthHeader() }
       );
       set({ rentals: [...get().rentals, res.data] });
+      toast.success("Book rented successfully");
       return res.data;
     } catch (error) {
       console.error("Error creating rental:", error);
+      toast.error(error.response?.data?.message || "Failed to rent book");
       throw error;
     }
   },
 
-  // Return rental
+
   returnRental: async (rentalId) => {
     try {
       const res = await axios.post(
@@ -54,14 +57,16 @@ export const useRentalStore = create((set, get) => ({
           r.id === rentalId ? res.data : r
         ),
       });
+      toast.success("Book returned successfully");
       return res.data;
     } catch (error) {
       console.error("Error returning rental:", error);
+      toast.error(error.response?.data?.message || "Failed to return book");
       throw error;
     }
   },
 
-  // Extend rental date
+
   extendRentalDate: async (rentalId) => {
     try {
       const res = await axios.post(
@@ -74,23 +79,26 @@ export const useRentalStore = create((set, get) => ({
           r.id === rentalId ? res.data : r
         ),
       });
+      toast.success("Rental date extended successfully");
       return res.data;
     } catch (error) {
       console.error("Error extending rental:", error);
+      toast.error(error.response?.data?.message || "Failed to extend rental");
       throw error;
     }
   },
 
-  // Get rentals by user
+
   fetchRentalsByUser: async (userId) => {
     try {
       const res = await axios.get(
-        `${API_BASE_URL}/rentals/user/${userId}`,
+        `${API_BASE_URL}/rentals/user`,
         { headers: get().getAuthHeader() }
       );
-      return res.data;
+      set({ userRentals: res.data });
     } catch (error) {
       console.error("Error fetching rentals by user:", error);
+      toast.error("Failed to fetch user rentals");
       throw error;
     }
   },

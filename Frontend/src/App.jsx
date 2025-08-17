@@ -34,11 +34,16 @@ function App() {
 
       <BrowserRouter>
         <Routes>
-          
           <Route path="/" element={getDashboard()} />
 
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/login" element={<Login />} />
+          <Route
+            path="/signup"
+            element={user ? <Navigate to="/" replace /> : <Signup />}
+          />
+          <Route
+            path="/login"
+            element={user ? <Navigate to="/" replace /> : <Login />}
+          />
         </Routes>
       </BrowserRouter>
     </div>

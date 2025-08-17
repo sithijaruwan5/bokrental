@@ -1,12 +1,6 @@
 package com.newnop.bookrental.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.newnop.bookrental.dto.AuthResponse;
 import com.newnop.bookrental.model.User;
@@ -16,39 +10,37 @@ import com.newnop.bookrental.service.AuthService;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
-        try {
-            User registerdUser = authService.userRegister(user);
+    public AuthResponse register(@RequestBody User user) {
+        User registeredUser = authService.userRegister(user);
+        String token = authService.generateToken(registeredUser);
 
-            String token = authService.generateToken(registerdUser);
-
-            AuthResponse authResponse = new AuthResponse(registerdUser.getId(),registerdUser.getEmail(), registerdUser.getName(), token, registerdUser.getRole());
-            return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
-
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-
+        return new AuthResponse(
+                registeredUser.getId(),
+                registeredUser.getEmail(),
+                registeredUser.getName(),
+                token,
+                registeredUser.getRole()
+        );
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User user) {
-        try {
-            User loggedInUser = authService.loginUser(user);
+    public AuthResponse login(@RequestBody User user) {
+        User loggedInUser = authService.loginUser(user);
+        String token = authService.generateToken(loggedInUser);
 
-            String token = authService.generateToken(loggedInUser);
-
-            AuthResponse authResponse = new AuthResponse(loggedInUser.getId(), loggedInUser.getEmail(), loggedInUser.getName(), token, loggedInUser.getRole());
-            return new ResponseEntity<>(authResponse, HttpStatus.OK);
-
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-
+        return new AuthResponse(
+                loggedInUser.getId(),
+                loggedInUser.getEmail(),
+                loggedInUser.getName(),
+                token,
+                loggedInUser.getRole()
+        );
     }
-
 }

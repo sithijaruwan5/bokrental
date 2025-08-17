@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.newnop.bookrental.config.JwtUtils;
+import com.newnop.bookrental.exception.CustomException;
 import com.newnop.bookrental.model.User;
 import com.newnop.bookrental.repository.UserRepository;
 
@@ -29,36 +30,36 @@ public class AuthService {
     public User userRegister(User user) {
 
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already exists");
+            throw new CustomException("Email already exists");
         }
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole("USER");
+
         try {
             userRepository.save(user);
             return user;
         } catch (Exception e) {
             logger.error("Error registering user: {}", e.getMessage(), e);
-            throw new RuntimeException("Registration failed, Try again!");
+            throw new CustomException("Registration failed. Try again!");
         }
     }
 
     public User loginUser(User user) {
         Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
         if (!existingUser.isPresent()) {
-            throw new RuntimeException("Email or password is incorrect");
+            throw new CustomException("Email or password is incorrect");
         }
-        User exisngUserObj = existingUser.get();
 
-        if (!passwordEncoder.matches(user.getPassword(), exisngUserObj.getPassword())) {
-            throw new RuntimeException("Email or password is incorrect");
+        User existingUserObj = existingUser.get();
+        if (!passwordEncoder.matches(user.getPassword(), existingUserObj.getPassword())) {
+            throw new CustomException("Email or password is incorrect");
         }
-        return exisngUserObj;
 
+        return existingUserObj;
     }
 
     public String generateToken(User user) {
         return jwtUtils.generateToken(user.getEmail());
     }
-
-  
-
 }

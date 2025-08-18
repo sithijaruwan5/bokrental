@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 
+//Book entity model
 @Data
 @Entity
 @Table(name = "books")

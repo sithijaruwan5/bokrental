@@ -5,8 +5,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import com.newnop.bookrental.config.CustomUserDetails;
 import com.newnop.bookrental.dto.RentalRequest;
 import com.newnop.bookrental.dto.RentalResponse;
 import com.newnop.bookrental.model.Rental;
@@ -19,60 +21,53 @@ public class RentalController {
     @Autowired
     private RentalService rentalService;
 
-
-
     @PostMapping("/rent")
-    public ResponseEntity<?> createRental(@RequestBody RentalRequest rentalRequest) {
-        try {
-            Rental rental = rentalService.createRental(rentalRequest);
-            return new ResponseEntity<>(toResponse(rental), HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<RentalResponse> createRental(@RequestBody RentalRequest rentalRequest, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        Long userId = customUserDetails.getId();
+        Rental rental = rentalService.createRental(userId, rentalRequest.getBookId());
+        return new ResponseEntity<>(toResponse(rental), HttpStatus.CREATED);
     }
 
     @PostMapping("/return/{rentalId}")
-    public ResponseEntity<?> returnRental(@PathVariable Long rentalId) {
-        try {
-            Rental rental = rentalService.returnRental(rentalId);
-            return new ResponseEntity<>(toResponse(rental), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<RentalResponse> returnRental(@PathVariable Long rentalId) {
+        Rental rental = rentalService.returnRental(rentalId);
+        return new ResponseEntity<>(toResponse(rental), HttpStatus.OK);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<?> getAllRentals() {
-        try {
-            List<RentalResponse> rentalResponses = rentalService.getAllRentals()
+    public ResponseEntity<List<RentalResponse>> getAllRentals() {
+        List<RentalResponse> rentalResponses = rentalService.getAllRentals()
                 .stream()
-                .map(this::toResponse) 
+                .map(this::toResponse)
                 .toList();
-            return new ResponseEntity<>(rentalResponses, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        return new ResponseEntity<>(rentalResponses, HttpStatus.OK);
     }
 
     @PostMapping("/extenddate/{rentalId}")
-    public ResponseEntity<?> extendRentalDate(@PathVariable Long rentalId) {
-        try {
-            Rental rental = rentalService.extendRental(rentalId);
-            return new ResponseEntity<>(toResponse(rental), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<RentalResponse> extendRentalDate(@PathVariable Long rentalId) {
+        Rental rental = rentalService.extendRental(rentalId);
+        return new ResponseEntity<>(toResponse(rental), HttpStatus.OK);
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<List<RentalResponse>> getRentalsByUser(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        Long userId = customUserDetails.getId();
+        List<RentalResponse> rentalResponses = rentalService.getRentalsByUser(userId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+        return new ResponseEntity<>(rentalResponses, HttpStatus.OK);
     }
 
     private RentalResponse toResponse(Rental rental) {
         return new RentalResponse(
-            rental.getId(),
-            rental.getBook(),
-            rental.getUser().getId(),
-            rental.getUser().getName(),
-            rental.getRentalDate(),
-            rental.getReturnDate(),
-            rental.isReturned()
+                rental.getId(),
+                rental.getBook(),
+                rental.getUser().getId(),
+                rental.getUser().getName(),
+                rental.getRentalDate(),
+                rental.getReturnDate(),
+                rental.isReturned()
         );
     }
 }

@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 
+//User entity model
 @Data
 @Entity
 @Table(name = "users")

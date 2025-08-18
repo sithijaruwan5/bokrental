@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.newnop.bookrental.dto.RentalRequest;
+import com.newnop.bookrental.exception.CustomException;
 import com.newnop.bookrental.model.Book;
 import com.newnop.bookrental.model.Rental;
 import com.newnop.bookrental.model.User;
@@ -25,21 +25,22 @@ public class RentalService {
     @Autowired
     private BookRepository bookRepository;
 
+    // Method to create a new rental
+    public Rental createRental(Long userId, Long bookId) {
 
-    public Rental createRental(RentalRequest rentalRequest) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException ("User not found"));
 
-        User user = userRepository.findById(rentalRequest.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        Book book = bookRepository.findById(rentalRequest.getBookId())
-                .orElseThrow(() -> new RuntimeException("Book not found"));
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new CustomException("Book not found"));
 
         if (!book.isAvailable()) {
-            throw new RuntimeException("Book is not available for rental");
+            throw new CustomException("Book is not available");
         }
+
         List<Rental> activeRentals = rentalRepository.findByUserAndIsReturnedFalse(user);
         if (!activeRentals.isEmpty()) {
-            throw new RuntimeException("You already has an active rental");
+            throw new CustomException("You already have an active rental");
         }
 
         Rental rental = new Rental();
@@ -48,46 +49,47 @@ public class RentalService {
         rental.setRentalDate(java.time.LocalDate.now().toString());
         rental.setReturnDate(java.time.LocalDate.now().plusWeeks(3).toString());
         rental.setReturned(false);
-
         book.setAvailable(false);
 
         try {
             bookRepository.save(book);
             return rentalRepository.save(rental);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to create rental: " + e.getMessage());
+            throw new CustomException("Failed to create rental: " + e.getMessage());
         }
-        
     }
-    
+
+    // Method to get all rentals
     public List<Rental> getAllRentals() {
         return rentalRepository.findAll();
     }
 
+    // Method to get active rentals
     public List<Rental> getActiveRentals() {
-      
         return rentalRepository.findByIsReturnedFalse();
     }
 
+    // Method to get rentals by user
     public List<Rental> getRentalsByUser(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new CustomException("User not found"));
         return rentalRepository.findByUser(user);
     }
 
+    // Method to get rentals by book
     public List<Rental> getRentalsByBook(Long bookId) {
         Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new RuntimeException("Book not found"));
+                .orElseThrow(() -> new CustomException("Book not found"));
         return rentalRepository.findByBook(book);
     }
 
-
+    // Method to return a rental
     public Rental returnRental(Long rentalId) {
         Rental rental = rentalRepository.findById(rentalId)
-                .orElseThrow(() -> new RuntimeException("Rental not found"));
+                .orElseThrow(() -> new CustomException("Rental not found"));
 
         if (rental.isReturned()) {
-            throw new RuntimeException("Rental already returned");
+            throw new CustomException("Rental already returned");
         }
 
         Book book = rental.getBook();
@@ -98,17 +100,17 @@ public class RentalService {
             bookRepository.save(book);
             return rentalRepository.save(rental);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to return rental: " + e.getMessage());
+            throw new CustomException("Failed to return rental: " + e.getMessage());
         }
-           
     }
 
+    // Method to extend a rental duedate
     public Rental extendRental(Long rentalId) {
         Rental rental = rentalRepository.findById(rentalId)
-                .orElseThrow(() -> new RuntimeException("Rental not found"));
+                .orElseThrow(() -> new CustomException("Rental not found"));
 
         if (rental.isReturned()) {
-            throw new RuntimeException("Rental already returned");
+            throw new CustomException("Rental already returned");
         }
 
         rental.setReturnDate(java.time.LocalDate.parse(rental.getReturnDate()).plusWeeks(1).toString());
@@ -116,7 +118,7 @@ public class RentalService {
         try {
             return rentalRepository.save(rental);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to extend rental: " + e.getMessage());
+            throw new CustomException("Failed to extend rental: " + e.getMessage());
         }
     }
 }

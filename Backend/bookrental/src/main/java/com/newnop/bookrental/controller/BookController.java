@@ -1,5 +1,7 @@
 package com.newnop.bookrental.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +37,9 @@ public class BookController {
     @GetMapping("/all")
     public ResponseEntity<?> getAllBooks() {
         try {
-            return new ResponseEntity<>(bookService.getAllBooks(), HttpStatus.OK);
+           
+            List<Book> books = bookService.getAllBooks();
+            return new ResponseEntity<>(books, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

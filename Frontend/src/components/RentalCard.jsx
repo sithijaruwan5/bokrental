@@ -1,6 +1,6 @@
 import React from "react";
 
-const RentalCard = ({ r, onExtend, onReturn, isAdmin }) => {
+const RentalCard = ({ r, onExtend, onReturn, isAdmin, extendloading, returnLoading }) => {
   return (
     <div className="w-full bg-gradientcard1 p-6 px-10 rounded-lg shadow-glass border border-gradient1/50 hover:shadow-lg transition relative">
       <div className="flex justify-between">
@@ -36,13 +36,15 @@ const RentalCard = ({ r, onExtend, onReturn, isAdmin }) => {
             className="border border-gradient1 p-3 text-lg font-semibold rounded-md cursor-pointer w-40 hover:opacity-90 transition"
             onClick={() => onExtend(r.rentalId)}
           >
-            Extend Date
+            {extendloading ? ("Processing..."):("Extend Date")}
+            
           </button>
           <button
             className="bg-gradient1 p-3 text-lg font-semibold rounded-md cursor-pointer w-40 hover:opacity-90 transition"
             onClick={() => onReturn(r.rentalId)}
           >
-            Return
+            {returnLoading ? ("Processing..."):("Return Book")}
+         
           </button>
         </div>
       )}

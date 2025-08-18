@@ -11,11 +11,18 @@ const UserDashboard = () => {
   const [search, setSearch] = useState("");
   const [filterAvailable, setFilterAvailable] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
-
+  const [rentLoading, setRentLoading] = useState(false);
+  const [extendloading, setExtendingLoading] = useState(false);
+  const [returnLoading, setReturnLoading] = useState(false);
   const { user, logoutUser } = useUserStore();
   const { books, fetchBooks } = useBooksStore();
-  const { userRentals, fetchRentalsByUser, returnRental, extendRentalDate, createRental } =
-    useRentalStore();
+  const {
+    userRentals,
+    fetchRentalsByUser,
+    returnRental,
+    extendRentalDate,
+    createRental,
+  } = useRentalStore();
 
   useEffect(() => {
     fetchBooks();
@@ -32,36 +39,47 @@ const UserDashboard = () => {
 
   const confirmRental = async (bookId) => {
     try {
+      setRentLoading(true);
       await createRental(bookId);
       fetchRentalsByUser();
       fetchBooks();
       setSelectedBook(null);
     } catch (error) {
       console.error("Failed to create rental:", error);
+    } finally {
+      setRentLoading(false);
     }
   };
 
   const handleExtend = async (rentalId) => {
     try {
+      setExtendingLoading(true);
       await extendRentalDate(rentalId);
       fetchRentalsByUser();
     } catch (err) {
       console.error("Failed to extend rental:", err);
+    } finally {
+      setExtendingLoading(false);
     }
   };
 
   const handleReturn = async (rentalId) => {
     try {
+      setReturnLoading(true);
       await returnRental(rentalId);
       fetchRentalsByUser();
       fetchBooks();
     } catch (err) {
       console.error("Failed to return rental:", err);
+    } finally {
+      setReturnLoading(false);
     }
   };
 
   const filteredBooks = books?.filter((book) => {
-    const matchesSearch = book.title.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = book.title
+      .toLowerCase()
+      .includes(search.toLowerCase());
     const matchesAvailability = filterAvailable ? book.available : true;
     return matchesSearch && matchesAvailability;
   });
@@ -71,10 +89,11 @@ const UserDashboard = () => {
 
   return (
     <div className="flex min-h-screen">
-
       <aside className="w-64 bg-gradient-to-b from-gradienthero1 to-gradienthero2 text-gray-100 flex flex-col min-h-screen border-r border-gradient1/50">
         <div className="p-6 flex flex-col gap-4">
-          <div className="text-lg font-semibold">Welcome, {user?.name || "User"}!</div>
+          <div className="text-lg font-semibold">
+            Welcome, {user?.name || "User"}!
+          </div>
           <div className="text-2xl font-bold flex items-center gap-2">
             <Book className="w-6 h-6" /> Book Rental
           </div>
@@ -104,7 +123,6 @@ const UserDashboard = () => {
           </button>
         </nav>
       </aside>
-
 
       <main className="flex-1 p-8  max-h-screen overflow-y-scroll">
         {activeTab === "books" && (
@@ -145,46 +163,62 @@ const UserDashboard = () => {
           </div>
         )}
 
-{activeTab === "rentals" && (
-  <div className="space-y-6">
-    <div>
-      <h2 className="text-xl font-bold mb-5">Pending Rentals</h2>
-      {pendingRentals.length > 0 ? (
-        <ul className="space-y-4">
-          {pendingRentals.map((r) => (
-            <RentalCard key={r.rentalId} r={r} onExtend={handleExtend} onReturn={handleReturn} />
-          ))}
-        </ul>
-      ) : (
-        <p>No pending rentals.</p>
-      )}
-    </div>
+        {activeTab === "rentals" && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-bold mb-5">Pending Rentals</h2>
+              {pendingRentals.length > 0 ? (
+                <ul className="space-y-4">
+                  {pendingRentals.map((r) => (
+                    <RentalCard
+                      key={r.rentalId}
+                      r={r}
+                      onExtend={handleExtend}
+                      onReturn={handleReturn}
+                      extendloading={extendloading}
+                      returnLoading={returnLoading}
+                    />
+                  ))}
+                </ul>
+              ) : (
+                <p>No pending rentals.</p>
+              )}
+            </div>
 
-    <div>
-      <h2 className="text-xl font-bold mb-5">Rental History</h2>
-      {rentalHistory.length > 0 ? (
-        <ul className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {rentalHistory.map((r) => (
-            <RentalCard key={r.rentalId} r={r} onExtend={handleExtend} onReturn={handleReturn} />
-          ))}
-        </ul>
-      ) : (
-        <p>No rental history.</p>
-      )}
-    </div>
-  </div>
-)}
-
+            <div>
+              <h2 className="text-xl font-bold mb-5">Rental History</h2>
+              {rentalHistory.length > 0 ? (
+                <ul className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {rentalHistory.map((r) => (
+                    <RentalCard
+                      key={r.rentalId}
+                      r={r}
+                      onExtend={handleExtend}
+                      onReturn={handleReturn}
+                      extendloading={extendloading}
+                      returnLoading={returnLoading}
+                    />
+                  ))}
+                </ul>
+              ) : (
+                <p>No rental history.</p>
+              )}
+            </div>
+          </div>
+        )}
       </main>
-
 
       {selectedBook && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
           <div className="bg-gray-900 p-8 rounded-lg max-w-md w-full border border-gradient1">
             <h2 className="text-2xl font-bold mb-2">{selectedBook.title}</h2>
             <p className="mb-4 text-gray-300">{selectedBook.author}</p>
-            <p className="mb-4 text-gray-300">Genre: {selectedBook.genre || "N/A"}</p>
-            <p className="mb-4 text-gray-300">ISBN: {selectedBook.isbn || "N/A"}</p>
+            <p className="mb-4 text-gray-300">
+              Genre: {selectedBook.genre || "N/A"}
+            </p>
+            <p className="mb-4 text-gray-300">
+              ISBN: {selectedBook.isbn || "N/A"}
+            </p>
             <p className="mb-4 text-green-400 font-semibold">Available</p>
             <div className="flex justify-end gap-4">
               <button
@@ -197,7 +231,8 @@ const UserDashboard = () => {
                 className="px-4 py-2 bg-gradient-to-r from-gradient1 to-gradient2 text-white rounded hover:opacity-90 cursor-pointer"
                 onClick={() => confirmRental(selectedBook.id)}
               >
-                Confirm Rental
+                {rentLoading ? "Processing..." : "Confirm Rental"}
+               
               </button>
             </div>
           </div>

@@ -30,7 +30,7 @@ export const useBooksStore = create((set, get) => ({
         headers: get().getAuthHeader(),
       });
       set({ books: res.data, searchResults: res.data });
-      toast.success("Books loaded successfully");
+     
     } catch (error) {
       console.error("Error fetching books:", error);
       toast.error("Failed to load books");

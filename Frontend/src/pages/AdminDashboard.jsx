@@ -13,6 +13,8 @@ const AdminDashboard = () => {
   const [selectedBook, setSelectedBook] = useState(null);
   const [errors, setErrors] = useState({});
   const [bookToDelete, setBookToDelete] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const { books, fetchBooks, addBook, updateBook, deleteBook } = useBooksStore();
   const { rentals, fetchRentals } = useRentalStore();
@@ -25,6 +27,8 @@ const AdminDashboard = () => {
 
   const handleSaveBook = async (book) => {
     try {
+      if (!validateBook(book)) return;
+      setLoading(true); 
       if (book.id) {
         await updateBook(book);
       } else {
@@ -36,17 +40,22 @@ const AdminDashboard = () => {
       setErrors({});
     } catch (err) {
       console.error("Failed to save book:", err);
+    }finally {
+      setLoading(false);
     }
   };
 
 
   const handleDeleteBook = async (id) => {
     try {
+      setDeleteLoading(true);
       await deleteBook(id);
       fetchBooks();
       setBookToDelete(null);
     } catch (err) {
       console.error("Failed to delete book:", err);
+    }finally {
+      setDeleteLoading(false);
     }
   };
   
@@ -293,7 +302,10 @@ const AdminDashboard = () => {
                   if (validateBook(selectedBook)) handleSaveBook(selectedBook);
                 }}
               >
-                {selectedBook.id ? "Save Changes" : "Add Book"}
+                
+                {selectedBook.id ? (
+                  loading ? "Updating..." : "Update Book"
+                ):( loading ? "Adding..." : "Add Book")}
               </button>
             </div>
           </div>
@@ -323,7 +335,8 @@ const AdminDashboard = () => {
                 className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 cursor-pointer"
                 onClick={() => handleDeleteBook(bookToDelete.id)}
               >
-                Delete
+                {deleteLoading ? "Deleting..." : "Delete Book"}
+         
               </button>
             </div>
           </div>

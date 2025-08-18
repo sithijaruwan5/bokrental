@@ -1,3 +1,85 @@
+# BookRental Application
+
+A full-stack **Book Rental System** built with **Spring Boot (Backend)** and **React + Vite (Frontend)**.  
+
+
+---
+
+## Features
+
+###   User
+- Register / Login with JWT Authentication
+- Browse available books
+- Filter books by title / author / genre
+- Rent and return books
+- View rental history
+
+### Admin
+- Add, update, and delete books
+- View all rentals
+
+---
+
+## Tech Stack
+
+### Backend (Spring Boot)
+- Java 21
+- Spring Boot 3+
+- Spring Security + JWT
+- Spring Data JPA + Hibernate
+- PostgreSQL
+- Unit Testing with Mockito
+
+
+### Frontend (React)
+- React + Vite
+- Zustand 
+- Axios 
+- TailwindCSS
+- Lucide React 
+
+---
+
+## Setup
+
+### Clone the repository
+```bash
+git clone https://github.com/Sithija-R/book-rental-system.git
+```
+### Configure Database
+
+Update backend ```application.properties``` (or application.yml) with your DB credentials
+```
+spring.datasource.url=jdbc:postgresql://localhost:5432/bookrental
+spring.datasource.username=your_username
+spring.datasource.password=your_password
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+jwt.secret.key=your_key
+
+```
+### Run Backend
+```
+
+cd backend/bookrental
+./mvnw spring-boot:run
+```
+### Run Backend Tests
+```
+
+cd backend/bookrental
+./mvnw test
+
+```
+### Run Frontend
+```
+cd frontend
+npm install
+npm run dev
+```
+
 # API Documentation
 ##  Auth API
 
